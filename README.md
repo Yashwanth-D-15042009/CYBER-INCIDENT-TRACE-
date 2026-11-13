@@ -145,7 +145,7 @@ Screenshots of the application can be added here to demonstrate its user interfa
 
 ## 👨‍💻 Author
 
-**Yashwanth**
+**Yashwanth D**
 
 ---
 
