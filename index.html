@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bastion · Cyber Incident Response</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Hanken+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0e1419; --bg2:#141d25; --panel:#18232dcc; --edge:#294055; --text:#e8f1f8; --mute:#8ea3b5;
+  --ice:#5cc8ff; --orange:#ff7a1a; --red:#ff4d5a; --ok:#3ddc97; --amber:#ffc247;
+  --display:"Chakra Petch","Trebuchet MS",sans-serif; --body:"Hanken Grotesk","Segoe UI",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font:16px/1.6 var(--body);overflow-x:hidden;
+  background-image:linear-gradient(#5cc8ff0a 1px,transparent 1px),linear-gradient(90deg,#5cc8ff0a 1px,transparent 1px);background-size:44px 44px}
+:focus-visible{outline:2px solid var(--ice);outline-offset:3px}
+code{color:var(--ice)}
+
+/* ---------- hero ---------- */
+.hero{position:relative;min-height:100vh;display:flex;flex-direction:column;padding:26px 6vw 40px;
+  background:radial-gradient(ellipse at 72% 45%,#16384f 0%,#0e1419 62%)}
+#gl{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.hero>*:not(#gl){position:relative;z-index:2}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px;font:700 1.45rem var(--display);letter-spacing:.04em}
+.logo svg{width:30px;height:30px}
+.chip{display:flex;align-items:center;gap:10px;padding:8px 16px;border:1px solid var(--edge);border-radius:10px;background:#0e1419b3;backdrop-filter:blur(8px);font-size:.9rem}
+.chip b{color:var(--lvl,var(--ok))}
+.chip i{width:9px;height:9px;border-radius:50%;background:var(--lvl,var(--ok));box-shadow:0 0 12px var(--lvl,var(--ok))}
+.copy{margin:auto 0;max-width:600px;padding:50px 0}
+.tagline{display:inline-block;border:1px solid var(--edge);color:var(--ice);border-radius:999px;padding:4px 14px;font-size:.88rem;font-weight:500;margin-bottom:22px;background:#5cc8ff12}
+h1{font:700 clamp(2.6rem,6.4vw,5.2rem)/1.02 var(--display);letter-spacing:-.01em}
+h1 em{font-style:normal;background:linear-gradient(100deg,var(--orange),var(--red));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{margin:22px 0 30px;color:var(--mute);font-size:1.12rem;max-width:50ch}
+.cta{display:inline-block;text-decoration:none;color:#06121a;background:var(--ice);font:700 1.02rem var(--body);padding:14px 28px;border-radius:12px;
+  box-shadow:0 0 0 0 #5cc8ff66,0 12px 34px #5cc8ff40;transition:transform .15s,box-shadow .15s}
+.cta:hover{transform:translateY(-3px);box-shadow:0 0 0 6px #5cc8ff26,0 16px 40px #5cc8ff55}
+.legend{display:flex;flex-wrap:wrap;gap:18px;margin-top:34px;font-size:.88rem;color:var(--mute)}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;background:var(--c)}
+.stats{display:flex;flex-wrap:wrap;gap:12px}
+.stat{background:#0e1419b3;backdrop-filter:blur(8px);border:1px solid var(--edge);border-radius:14px;padding:10px 18px;min-width:132px}
+.stat b{display:block;font:700 1.9rem/1.1 var(--display)}
+.stat small{color:var(--mute);font-size:.82rem}
+.stat.sim b{color:var(--c)}
+
+/* ---------- lifecycle section ---------- */
+section.life{padding:80px 6vw 10px}
+h2{font:700 clamp(1.7rem,3.4vw,2.4rem)/1.1 var(--display);margin-bottom:8px}
+.lead{color:var(--mute);max-width:60ch;margin-bottom:28px}
+.lc{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:18px}
+.card{background:var(--panel);border:1px solid var(--edge);border-radius:18px;padding:22px;transition:transform .15s ease-out,border-color .2s;will-change:transform}
+.card:hover{border-color:var(--ice)}
+.card .n{font:700 .85rem var(--display);color:var(--ice)}
+.card h3{font:700 1.3rem var(--display);margin:4px 0 6px}
+.card p{color:var(--mute);font-size:.95rem}
+
+/* ---------- console ---------- */
+.notice{margin:30px 6vw 0;padding:12px 16px;border:1px solid var(--amber);color:var(--amber);border-radius:12px;font-size:.92rem}
+.notice[hidden]{display:none}
+main{display:grid;grid-template-columns:minmax(290px,400px) 1fr;gap:28px;padding:70px 6vw 100px;align-items:start}
+@media(max-width:900px){main{grid-template-columns:1fr}}
+.list{display:flex;flex-direction:column;gap:14px;margin-top:18px}
+.inc{all:unset;cursor:pointer;display:block;position:relative;padding:16px 18px 16px 24px;border-radius:16px;background:var(--panel);
+  border:1px solid var(--edge);transition:transform .15s ease-out,border-color .2s,background .2s;will-change:transform}
+.inc::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:4px;border-radius:0 4px 4px 0;background:var(--sev);box-shadow:0 0 14px var(--sev)}
+.inc[aria-pressed=true]{border-color:var(--sev);background:#1e3140e6}
+.inc small{color:var(--mute);font-size:.78rem}
+.inc strong{display:block;font:600 1.02rem/1.35 var(--body);padding-right:76px}
+.inc .st{color:var(--mute);font-size:.88rem}
+.inc em{position:absolute;right:16px;top:16px;font:normal 700 .8rem var(--body);color:var(--sev);border:1px solid var(--sev);border-radius:6px;padding:0 8px}
+.sev-critical{--sev:var(--red)}.sev-high{--sev:var(--orange)}.sev-medium{--sev:var(--ice)}.sev-low{--sev:var(--ok)}
+
+.panel{background:linear-gradient(160deg,#1b2b38e6,#111a22e6);border:1px solid var(--edge);border-radius:24px;padding:30px;min-height:460px;box-shadow:0 30px 60px #0008}
+.panel .kick{color:var(--mute);font-size:.86rem}
+.panel h2{font-size:clamp(1.7rem,3vw,2.3rem);margin:4px 0 6px}
+.meta{color:var(--mute);margin-bottom:24px}
+.empty-note{color:var(--mute);padding:10px 0 20px}
+
+.phases{list-style:none;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:0 0 30px;padding:0;perspective:700px}
+.phases li{padding:10px 8px;text-align:center;border-radius:10px;border:1px solid var(--edge);background:#0e1419;color:var(--mute);font-size:.78rem;
+  transform:rotateX(34deg);transform-origin:bottom;transition:transform .35s,background .35s,color .35s}
+.phases li b{display:block;font:700 1.1rem var(--display)}
+.phases li.on{transform:rotateX(0) translateY(-4px);background:#16384f;color:var(--text);border-color:var(--ice);box-shadow:0 10px 24px #5cc8ff33}
+.phases li.now{background:var(--ice);color:#06121a;animation:glow 1.8s ease-in-out infinite}
+@keyframes glow{50%{box-shadow:0 10px 34px #5cc8ff99}}
+@media(max-width:560px){.phases{grid-template-columns:repeat(3,1fr)}}
+
+.wire{position:relative;margin:0 0 30px 10px;padding-left:32px}
+.wire::before{content:"";position:absolute;left:0;top:6px;bottom:6px;width:2px;background:linear-gradient(var(--ice),var(--orange));opacity:.55}
+.ev{position:relative;margin-bottom:14px;padding:14px 18px;border-radius:14px;background:#ffffff0a;border:1px solid #ffffff12}
+.ev::before{content:"";position:absolute;left:-38px;top:20px;width:12px;height:12px;border-radius:50%;background:var(--bg);border:3px solid var(--c);box-shadow:0 0 12px var(--c)}
+.ev.new{animation:land 1.2s}
+@keyframes land{0%{box-shadow:0 0 0 0 var(--c);background:#ffffff2e}100%{box-shadow:0 0 0 18px #0000}}
+.ev time{font-size:.8rem;color:var(--mute)}
+.ev b{display:block;color:var(--c);font:700 1.02rem var(--body)}
+.ev p{max-width:64ch}
+
+form{display:grid;grid-template-columns:1fr 1fr;gap:14px;border-top:1px solid var(--edge);padding-top:22px}
+form h3{grid-column:1/-1;font:700 1.15rem var(--display)}
+label{display:flex;flex-direction:column;gap:6px;font-size:.86rem;color:var(--mute)}
+label.wide{grid-column:1/-1}
+input,select,textarea{background:#0b1015;color:var(--text);border:1px solid var(--edge);border-radius:10px;padding:11px 13px;font:inherit}
+textarea{min-height:84px;resize:vertical}
+button.log{grid-column:1/-1;justify-self:start;border:0;cursor:pointer;color:#06121a;background:var(--ice);font:700 1rem var(--body);padding:12px 26px;border-radius:10px;transition:transform .12s}
+button.log:hover{transform:scale(1.04)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translate(-50%,120px);background:var(--ice);color:#06121a;padding:12px 24px;border-radius:12px;font-weight:700;transition:transform .3s;z-index:9}
+.toast.show{transform:translate(-50%,0)}
+@media(max-width:560px){form{grid-template-columns:1fr}}
+@media(max-width:800px){.copy{padding-top:90px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <canvas id="gl" aria-hidden="true"></canvas>
+  <div class="top">
+    <div class="logo">
+      <svg viewBox="0 0 32 32" fill="none" stroke="#5cc8ff" stroke-width="2.2" stroke-linejoin="round"><path d="M16 2l12 7v14l-12 7L4 23V9z"/><path d="M16 10l6 3.5v5L16 22l-6-3.5v-5z" stroke="#ff7a1a"/></svg>
+      Bastion
+    </div>
+    <div class="chip" id="chip">Threat level <b id="lvl">Calm</b><i></i></div>
+  </div>
+
+  <div class="copy">
+    <span class="tagline">Cyber incident response platform</span>
+    <h1>Every layer holds. <em>Until one doesn't.</em></h1>
+    <p class="sub">Bastion tracks each cyber incident through detection, containment and recovery, so your team always knows what happened, when it happened and what comes next.</p>
+    <a class="cta" href="#cases">Open incident files</a>
+    <div class="legend">
+      <span style="--c:var(--ice)">Defence layers</span>
+      <span style="--c:var(--orange)">Attack traffic</span>
+      <span style="--c:#fff">Your protected data</span>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><b id="cTotal">0</b><small>cases on file</small></div>
+    <div class="stat"><b id="cCrit">0</b><small>critical</small></div>
+    <div class="stat"><b id="cHigh">0</b><small>high severity</small></div>
+    <div class="stat sim" style="--c:var(--ice)"><b id="sBlock">0</b><small>simulated attacks blocked</small></div>
+    <div class="stat sim" style="--c:var(--red)"><b id="sBreach">0</b><small>simulated breaches</small></div>
+  </div>
+</section>
+
+<section class="life">
+  <h2>The lifecycle behind every timeline</h2>
+  <p class="lead">Each event you log belongs to one phase of a standard incident response lifecycle, modelled on NIST SP 800-61. The tracker on each case shows how far the response has got.</p>
+  <div class="lc" id="lc"></div>
+</section>
+
+<div class="notice" id="notice" hidden>Can't reach the server, so this page is showing sample data. Start it with <code>node server.js</code> and refresh.</div>
+
+<main id="cases">
+  <section aria-label="Incidents">
+    <h2>Incident files</h2>
+    <div class="list" id="list"></div>
+  </section>
+  <section class="panel" id="panel" aria-live="polite">
+    <p class="empty-note">Pick an incident to open its response timeline.</p>
+  </section>
+</main>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const SAMPLE=[
+ {id:1,title:"Ransomware on finance file server",severity:"Critical",status:"Containing",events:[
+  {eventTime:"2026-10-14T02:14",eventType:"Detection",details:"EDR flagged mass file renames on FIN-SRV-02."},
+  {eventTime:"2026-10-14T02:31",eventType:"Investigation",details:"Analysts confirmed ransomware behaviour and began scoping."},
+  {eventTime:"2026-10-14T02:45",eventType:"Containment",details:"Server isolated from the network. Backup jobs paused."}]},
+ {id:2,title:"Phishing campaign targeting HR",severity:"High",status:"Investigating",events:[
+  {eventTime:"2026-10-13T09:05",eventType:"Detection",details:"Eleven staff reported the same fake payroll email."}]},
+ {id:3,title:"Unusual admin logins from abroad",severity:"Medium",status:"Monitoring",events:[]},
+ {id:4,title:"Expired TLS certificate on portal",severity:"Low",status:"Resolved",events:[
+  {eventTime:"2026-10-10T11:00",eventType:"Detection",details:"Monitoring warned the certificate had expired."},
+  {eventTime:"2026-10-10T11:40",eventType:"Eradication",details:"New certificate issued and deployed."},
+  {eventTime:"2026-10-10T12:05",eventType:"Recovery",details:"Portal confirmed healthy from three regions."}]}
+];
+const PH=["Detection","Investigation","Containment","Eradication","Recovery"];
+const PHTXT={Detection:"Spot the signal: an alert, a report or an anomaly.",Investigation:"Work out what happened, how far it spread and how bad it is.",
+  Containment:"Stop the spread by isolating systems and cutting access.",Eradication:"Remove the cause, such as malware, bad accounts or open holes.",Recovery:"Restore services safely and watch for a repeat."};
+const COL={Detection:"#ff4d5a",Investigation:"#5cc8ff",Containment:"#ffc247",Eradication:"#b79bff",Recovery:"#3ddc97",Note:"#8ea3b5"};
+const SEV={critical:"#ff4d5a",high:"#ff7a1a",medium:"#5cc8ff",low:"#3ddc97"};
+const $=id=>document.getElementById(id);
+let incidents=[],selected=null,offline=false,setBreach=()=>{};
+
+const sevKey=s=>/crit/i.test(s)?"critical":/high/i.test(s)?"high":/low/i.test(s)?"low":"medium";
+const norm=r=>({id:r.id??r.IncidentId??r.incidentId,title:r.title??r.Title??r.name??r.Name??r.IncidentName??"Untitled incident",
+  severity:r.severity??r.Severity??"Medium",status:r.status??r.Status??"Open",events:r.events??null});
+const nev=e=>({eventTime:e.eventTime??e.EventTime,eventType:e.eventType??e.EventType??"Note",details:e.details??e.Details??""});
+
+async function load(){
+  try{const r=await fetch("/api/incidents");if(!r.ok)throw 0;const d=await r.json();
+    incidents=(Array.isArray(d)?d:d.recordset||[]).map(norm);}
+  catch{offline=true;incidents=SAMPLE.map((s,i)=>({...norm(s),events:SAMPLE[i].events}));}
+  $("notice").hidden=!offline;
+  renderList();renderHero();
+}
+async function loadEvents(inc){
+  if(offline&&inc.events)return inc.events;
+  try{const r=await fetch(`/api/incidents/${inc.id}/events`);if(!r.ok)throw 0;const d=await r.json();
+    return(Array.isArray(d)?d:d.recordset||[]).map(nev);}catch{return(inc.events||[]).map(nev);}
+}
+
+/* 3D tilt for any card */
+function tilt(el){
+  el.addEventListener("pointermove",e=>{const r=el.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
+    el.style.transform=`perspective(700px) rotateY(${x*12}deg) rotateX(${-y*12}deg) translateZ(8px)`});
+  el.addEventListener("pointerleave",()=>el.style.transform="");
+}
+
+function renderHero(){
+  const crit=incidents.filter(i=>sevKey(i.severity)==="critical").length,high=incidents.filter(i=>sevKey(i.severity)==="high").length,
+        med=incidents.filter(i=>sevKey(i.severity)==="medium").length;
+  $("cTotal").textContent=incidents.length;$("cCrit").textContent=crit;$("cHigh").textContent=high;
+  const score=crit*4+high*2+med;
+  const [n,c]=crit?["Critical",SEV.critical]:score>=4?["Elevated",SEV.high]:score>0?["Guarded",SEV.medium]:["Calm",SEV.low];
+  $("lvl").textContent=n;$("chip").style.setProperty("--lvl",c);
+  setBreach(crit?.2:score>=4?.1:.04);
+  const lc=$("lc");lc.innerHTML="";
+  PH.forEach((p,i)=>{const d=document.createElement("div");d.className="card";
+    d.innerHTML='<div class="n"></div><h3></h3><p></p>';d.children[0].textContent="Phase 0"+(i+1);d.children[1].textContent=p;d.children[2].textContent=PHTXT[p];
+    lc.append(d);tilt(d)});
+}
+
+function renderList(){
+  const L=$("list");L.innerHTML="";
+  incidents.forEach(inc=>{
+    const b=document.createElement("button");
+    b.className="inc sev-"+sevKey(inc.severity);
+    b.setAttribute("aria-pressed",!!selected&&selected.id===inc.id);
+    b.innerHTML="<small></small><strong></strong><span class='st'></span><em></em>";
+    b.children[0].textContent="Incident #"+String(inc.id).padStart(4,"0");b.children[1].textContent=inc.title;
+    b.children[2].textContent=inc.status;b.children[3].textContent=inc.severity;
+    b.onclick=()=>select(inc);L.append(b);tilt(b);
+  });
+}
+async function select(inc){
+  selected=inc;renderList();
+  inc.events=await loadEvents(inc);
+  const k=sevKey(inc.severity);setBreach(k==="critical"?.4:k==="high"?.2:.06);
+  drawPanel(inc,inc.events);
+  if(innerWidth<900)$("panel").scrollIntoView({behavior:"smooth"});
+}
+function drawPanel(inc,events,newest){
+  const p=$("panel");
+  p.innerHTML=`<div class="kick"></div><h2></h2><p class="meta"></p>
+  <ol class="phases"></ol><div class="wire"></div>
+  <form id="f"><h3>Log a response event</h3>
+   <label>When<input type="datetime-local" name="t" required></label>
+   <label>Phase<select name="k"></select></label>
+   <label class="wide">What happened<textarea name="d" maxlength="500" placeholder="Describe what you saw or what you did"></textarea></label>
+   <button class="log" type="submit">Add to timeline</button></form>`;
+  p.querySelector(".kick").textContent="Incident #"+String(inc.id).padStart(4,"0");
+  p.querySelector("h2").textContent=inc.title;
+  p.querySelector(".meta").textContent=`${inc.severity} severity · ${inc.status} · ${events.length} event${events.length===1?"":"s"}`;
+  const sorted=[...events].sort((a,b)=>new Date(a.eventTime)-new Date(b.eventTime));
+  const last=sorted.length?sorted[sorted.length-1].eventType:null;
+  const ol=p.querySelector(".phases");
+  PH.forEach(ph=>{const n=events.filter(e=>e.eventType===ph).length,li=document.createElement("li");
+    li.className=(n?"on ":"")+(ph===last?"now":"");li.innerHTML="<b></b><span></span>";
+    li.children[0].textContent=n;li.children[1].textContent=ph;ol.append(li)});
+  const wire=p.querySelector(".wire");
+  if(!sorted.length)wire.outerHTML='<p class="empty-note">No events yet. Log the first one below.</p>';
+  else sorted.forEach(e=>{
+    const d=document.createElement("div");d.className="ev"+(e===newest?" new":"");
+    d.style.setProperty("--c",COL[e.eventType]||"#5cc8ff");d.innerHTML="<time></time><b></b><p></p>";
+    const t=new Date(e.eventTime);
+    d.children[0].textContent=isNaN(t)?e.eventTime:t.toLocaleString([], {dateStyle:"medium",timeStyle:"short"});
+    d.children[1].textContent=e.eventType;d.children[2].textContent=e.details;wire.append(d);
+  });
+  const f=$("f");f.k.innerHTML=Object.keys(COL).map(t=>`<option>${t}</option>`).join("");
+  f.t.value=new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,16);
+  f.onsubmit=async ev=>{
+    ev.preventDefault();
+    const e={eventTime:new Date(f.t.value).toISOString(),eventType:f.k.value,details:f.d.value.trim()};
+    try{const r=await fetch(`/api/incidents/${inc.id}/events`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(e)});if(!r.ok)throw 0;}
+    catch{if(!offline){toast("Couldn't save the event. Check the server and try again.");return;}}
+    inc.events=[...inc.events,e];toast("Event added to timeline");drawPanel(inc,inc.events,e);
+  };
+}
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2600)}
+
+/* ---------- 3D defence-in-depth simulation (three.js) ---------- */
+(function(){
+  if(!window.THREE)return; /* offline: the CSS background still shows */
+  const T=THREE,cv=$("gl"),reduce=matchMedia("(prefers-reduced-motion:reduce)").matches;
+  const R=new T.WebGLRenderer({canvas:cv,alpha:true,antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,2));
+  const scene=new T.Scene(),cam=new T.PerspectiveCamera(45,1,.1,100);cam.position.z=11;
+  const world=new T.Group();scene.add(world);
+  const ICE=0x5cc8ff,OR=0xff7a1a,RED=0xff4d5a;
+  const wire=(c,o)=>new T.MeshBasicMaterial({color:c,wireframe:true,transparent:true,opacity:o});
+
+  const core=new T.Mesh(new T.IcosahedronGeometry(1.1,1),wire(0xffffff,.9));world.add(core);
+  const glow=new T.Mesh(new T.SphereGeometry(.75,24,24),new T.MeshBasicMaterial({color:ICE,transparent:true,opacity:.3}));world.add(glow);
+  world.add(new T.Mesh(new T.IcosahedronGeometry(2.3,2),wire(ICE,.14)));
+
+  const spins=[[3.1,0,0],[3.9,.9,.4],[4.7,-.7,-.5]].map(([r,rx,ry],i)=>{
+    const tiltG=new T.Group(),spin=new T.Group();tiltG.rotation.set(Math.PI/2+rx,ry,0);tiltG.add(spin);
+    spin.add(new T.Mesh(new T.TorusGeometry(r,.022,8,160),new T.MeshBasicMaterial({color:ICE,transparent:true,opacity:.75})));
+    for(let k=0;k<3;k++){const a=k*2.094,n=new T.Mesh(new T.SphereGeometry(.09,12,12),new T.MeshBasicMaterial({color:0xffffff}));n.position.set(Math.cos(a)*r,Math.sin(a)*r,0);spin.add(n)}
+    world.add(tiltG);return{spin,sp:(.25+i*.12)*(i%2?-1:1)};
+  });
+
+  const sp=[];for(let i=0;i<500;i++){const d=new T.Vector3(Math.random()-.5,Math.random()-.5,Math.random()-.5).normalize().multiplyScalar(16+Math.random()*14);sp.push(d.x,d.y,d.z)}
+  const sg=new T.BufferGeometry();sg.setAttribute("position",new T.Float32BufferAttribute(sp,3));
+  scene.add(new T.Points(sg,new T.PointsMaterial({color:0x8fb8d4,size:.05,transparent:true,opacity:.6})));
+
+  let breach=.04,blocked=0,breached=0,flash=0;
+  setBreach=v=>breach=v;
+  const BLOCK=[4.7,3.9,3.1,2.3];
+  const threats=Array.from({length:14},()=>{
+    const m=new T.Mesh(new T.SphereGeometry(.09,10,10),new T.MeshBasicMaterial({color:OR,transparent:true}));
+    const g=new T.BufferGeometry();g.setAttribute("position",new T.Float32BufferAttribute(new Float32Array(6),3));
+    const tail=new T.Line(g,new T.LineBasicMaterial({color:OR,transparent:true,opacity:.7}));
+    world.add(m,tail);const t={m,tail,g};respawn(t,Math.random());return t;
+  });
+  function respawn(t,early=0){
+    t.dir=new T.Vector3(Math.random()*2-1,Math.random()*2-1,Math.random()*2-1).normalize();
+    t.r=9-early*5;t.v=.035+Math.random()*.04;t.state=0;t.life=1;t.pass=Math.random()<breach;
+    t.block=BLOCK[Math.random()*BLOCK.length|0];t.m.material.color.setHex(OR);t.m.scale.setScalar(1);
+  }
+  function stepThreat(t,f){
+    if(t.state===0){
+      t.r-=t.v*f;
+      if(t.pass&&t.r<=1.15){t.state=2;flash=1;breached++;$("sBreach").textContent=breached}
+      else if(!t.pass&&t.r<=t.block){t.state=1;blocked++;$("sBlock").textContent=blocked;t.m.material.color.setHex(ICE)}
+    }else{t.life-=.045*f;t.m.scale.multiplyScalar(1+.07*f);if(t.life<=0){respawn(t);return}}
+    t.m.material.opacity=Math.max(t.life,0);
+    t.m.position.copy(t.dir).multiplyScalar(t.r);
+    const a=t.g.attributes.position,p=t.m.position,q=t.dir.clone().multiplyScalar(t.r+(t.state?0:1.1));
+    a.setXYZ(0,p.x,p.y,p.z);a.setXYZ(1,q.x,q.y,q.z);a.needsUpdate=true;t.tail.material.opacity=t.state?0:.7;
+  }
+
+  let mx=0,my=0,cx=0,cy=0,last=performance.now(),spin=0;
+  addEventListener("pointermove",e=>{mx=e.clientX/innerWidth-.5;my=e.clientY/innerHeight-.5});
+  function size(){
+    const w=cv.clientWidth,h=cv.clientHeight,asp=w/h;R.setSize(w,h,false);cam.aspect=asp;cam.updateProjectionMatrix();
+    world.position.x=Math.max(0,Math.min(3.4,(asp-1.1)*3.2));
+    world.scale.setScalar(asp<1.1?Math.max(.45,asp*.62):1);
+  }
+  addEventListener("resize",size);size();
+  const col=new T.Color();
+  function frame(now){
+    const dt=Math.min((now-last)/1000,.05),f=dt*60;last=now;
+    cx+=(mx-cx)*.05;cy+=(my-cy)*.05;spin+=dt*.12;
+    world.rotation.y=spin+cx*.9;world.rotation.x=.32+cy*.5;
+    core.rotation.y+=dt*.6;core.rotation.x+=dt*.3;
+    spins.forEach(s=>s.spin.rotation.z+=s.sp*dt);
+    flash*=Math.pow(.94,f);core.material.color.set(0xffffff).lerp(col.setHex(RED),flash);glow.material.color.setHex(ICE).lerp(col.setHex(RED),flash);
+    threats.forEach(t=>stepThreat(t,f));
+    R.render(scene,cam);
+    if(!reduce)requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+load();
+</script>
+</body>
+</html>
